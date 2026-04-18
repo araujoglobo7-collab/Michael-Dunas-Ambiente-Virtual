@@ -1,0 +1,37 @@
+[
+    {
+        "atv": "Brainstorm Inicial",
+        "exec": "Gabriel",
+        "status": "Reunião",
+        "data": "2026-04-18",
+        "horas": "0"
+    },
+    {
+        "atv": "Brainstorm Inicial",
+        "exec": "Gabriel",
+        "status": "Reunião",
+        "data": "2026-04-18",
+        "horas": "0"
+    },
+    {
+        "atv": "Brainstorm Inicial\tGabriel\tReunião\t2026-04-18\t0",
+        "exec": "Gabriel",
+        "status": "Em Andamento",
+        "data": null,
+        "horas": null
+    },
+    {
+        "atv": "Brainstorm Inicial\tGabriel\tReunião\t2026-04-18\t0",
+        "exec": "Gabriel",
+        "status": "Projetos Futuros",
+        "data": null,
+        "horas": null
+    },
+    {
+        "atv": "Brainstorm Inicial\tGabriel\tReunião\t2026-04-18\t0",
+        "exec": "Gabriel",
+        "status": "Em Andamento",
+        "data": null,
+        "horas": null
+    }
+]
