@@ -5,154 +5,192 @@ import json
 import os
 from datetime import datetime
 
-# Produtividade UDA - JARVIS (Dunas Fleet Hub + Notes 2026)
-st.set_page_config(layout="wide", page_title="Dunas Fleet - Hub de Inteligência")
+# --- CONFIGURAÇÃO DA PÁGINA ---
+st.set_page_config(layout="wide", page_title="Dunas Fleet - Hub Operacional")
 
-# --- CONFIGURAÇÕES E BANCO DE DADOS ---
-STATUS_OPCOES = ["Reunião", "A Iniciar", "Em Andamento", "Projetos Futuros", "Concluído"]
-CORES_MAP = {"Reunião": "#e67e22", "A Iniciar": "#ffb347", "Em Andamento": "#fb8c00", "Projetos Futuros": "#edbb99", "Concluído": "#2ecc71"}
-DB_FILE = "dunas_fleet_complete.json"
-NOTES_FILE = "dunas_notes.txt"
+# --- TRAVA DE SEGURANÇA ---
+senha = st.sidebar.text_input("Acesso", type="password")
 
-# --- LINKS POWER BI ---
-LINKS_POWER_BI = {
-    "Selecione um Painel": "",
-    "MLOG TRANSPORTES ": "https://app.powerbi.com/view?r=eyJrIjoiNzAzNzNlY2EtZjU1YS00ZjRkLWJmMzQtOGNmYjYzYmQyZmFkIiwidCI6IjZhNmZhNjk4LWZhZTYtNDJkOC05YjRkLWRiZGY4ZDc3MmI4MCJ9",
-    "AUTOTRUCK TRANSPORTES": "https://app.powerbi.com/view?r=eyJrIjoiMjhjMWFlZDUtY2E0Zi00NjlmLWE0NGItM2EwMWM2YWFlZDBlIiwidCI6IjZhNmZhNjk4LWZhZTYtNDJkOC05YjRkLWRiZGY4ZDc3MmI4MCJ9"
-}
-
-def carregar_dados():
-    if os.path.exists(DB_FILE):
-        with open(DB_FILE, "r", encoding="utf-8") as f:
-            try: return json.load(f)
-            except: return []
-    return [{"atv": "Operação Dunas", "exec": "Gabriel", "status": "Reunião", "data": "2026-04-18"}]
-
-def salvar_dados(dados):
-    with open(DB_FILE, "w", encoding="utf-8") as f:
-        json.dump(dados, f, indent=4, ensure_ascii=False)
-
-def carregar_notas():
-    if os.path.exists(NOTES_FILE):
-        with open(NOTES_FILE, "r", encoding="utf-8") as f:
-            return f.read()
-    return ""
-
-def salvar_notas(texto):
-    with open(NOTES_FILE, "w", encoding="utf-8") as f:
-        f.write(texto)
-
-if 'atividades' not in st.session_state:
-    st.session_state.atividades = carregar_dados()
-
-# --- ESTILO INTERFACE ---
-st.markdown("""
-    <style>
-    .stApp { background-color: #fdfaf6; }
-    [data-testid="stSidebar"] { background-color: #ffffff !important; border-right: 4px solid #fb8c00; }
-    .calc-box { background: white; padding: 20px; border-radius: 12px; border-left: 10px solid #fb8c00; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    iframe { border-radius: 15px; border: 2px solid #f0f0f0; }
-    /* Estilo para o Bloco de Notas */
-    .stTextArea textarea { background-color: #fff; border: 1px solid #ddd; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 14px; }
-    </style>
-""", unsafe_allow_html=True)
-
-# --- SIDEBAR ---
-with st.sidebar:
-    st.header("🏜️ Dunas Fleet")
-    st.markdown("---")
-    st.subheader("🔍 Filtro de Operação")
-    data_filtro = st.date_input("Filtrar Mapa por Dia", value=datetime.now())
-    data_str = data_filtro.strftime("%Y-%m-%d")
-    st.markdown("---")
-    if st.button("💾 SALVAR TUDO"):
-        salvar_dados(st.session_state.atividades)
-        st.success("Dados e Mapa Sincronizados!")
-
-# --- FILTRAGEM ---
-atividades_filtradas = [a for a in st.session_state.atividades if str(a.get("data")) == data_str]
-
-# --- ABAS (Agora com 5 abas) ---
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["🗺️ CENTRO DE COMANDO", "📊 DASHBOARDS BI", "📝 MANIFESTO", "🧮 LOGÍSTICA", "✍️ ANOTAÇÕES"])
-
-with tab1:
-    def gerar_mapa_filtrado(atividades):
-        salas_cfg = {
-            "Reunião": {"t": "1%", "l": "1%", "w": "98%", "h": "22%", "n": "🤝 SALA DE COMANDO"},
-            "A Iniciar": {"t": "25%", "l": "1%", "w": "32%", "h": "72%", "n": "🚀 PÁTIO DE CARGA"},
-            "Em Andamento": {"t": "25%", "l": "34%", "w": "32%", "h": "40%", "n": "🚚 EM ROTA"},
-            "Projetos Futuros": {"t": "67%", "l": "34%", "w": "32%", "h": "30%", "n": "📅 GARAGEM"},
-            "Concluído": {"t": "25%", "l": "67%", "w": "32%", "h": "72%", "n": "✅ CHECK-OUT"}
-        }
-        salas_html = ""
-        for status_nome, p in salas_cfg.items():
-            atvs = [a for a in atividades if a and a.get('status') == status_nome]
-            cards_html = ""
-            for idx, a in enumerate(atvs):
-                cor = CORES_MAP.get(status_nome, "#ccc")
-                cards_html += f'''
-                <div class="card" style="border-left: 5px solid {cor};">
-                    <div class="card-top-row"><span class="badge">GABRIEL</span>
-                    <div class="track"><div class="mini-walker" style="border-color:{cor}; animation-delay:{idx*0.3}s;"></div></div></div>
-                    <div class="card-content">{a.get("atv","-")}</div>
-                    <div class="card-date">📅 {a.get("data","---")}</div>
-                </div>'''
-            salas_html += f'<div class="room" style="top:{p["t"]}; left:{p["l"]}; width:{p["w"]}; height:{p["h"]};"><div class="room-label">{p["n"]}</div><div class="scroll-v">{cards_html}</div></div>'
-        return f"""
-        <style>
-            .map-outer {{ background:#ece4db; width:100%; height:82vh; position:relative; border-radius:15px; border:10px solid #fff; overflow:hidden; }}
-            .room {{ position:absolute; background:rgba(255,255,255,0.5); border-radius:8px; border:1px solid rgba(0,0,0,0.05); }}
-            .room-label {{ font-size:10px; font-weight:900; color:#d35400; padding:8px 0 0 12px; text-transform:uppercase; }}
-            .scroll-v {{ position:absolute; top:35px; left:0; width:100%; height:calc(100% - 40px); overflow-y:auto; padding:0 10px; box-sizing:border-box; }}
-            .card {{ background:#fff; margin-bottom:10px; border-radius:6px; padding:10px; box-shadow:0 2px 5px rgba(0,0,0,0.05); }}
-            .badge {{ background:#333; color:#fff; font-size:8px; padding:2px 6px; border-radius:3px; font-weight:bold; }}
-            .track {{ flex-grow:1; height:18px; position:relative; margin-left:10px; background:rgba(0,0,0,0.02); border-radius:10px; overflow:hidden; }}
-            .mini-walker {{ width:16px; height:16px; background: url('https://cdn-icons-png.flaticon.com/512/3135/3135715.png') center/cover; border-radius:50%; border:1.5px solid; position:absolute; animation: move 4s infinite ease-in-out alternate; }}
-            @keyframes move {{ from {{ left:0%; }} to {{ left:calc(100% - 18px); }} }}
-            .card-content {{ font-size:12px; font-weight:bold; color:#333; }}
-            .card-date {{ font-size:9px; color:#999; margin-top:5px; font-weight:bold; }}
-            ::-webkit-scrollbar {{ width:4px; }} ::-webkit-scrollbar-thumb {{ background:#fb8c00; border-radius:10px; }}
-        </style>
-        <div class="map-outer">{salas_html}</div>"""
+if senha == "gsr17":
+    st.sidebar.success("Painel Liberado")
     
-    if atividades_filtradas:
-        components.html(gerar_mapa_filtrado(atividades_filtradas), height=850)
-    else:
-        st.info(f"Nenhuma operação registrada para o dia {data_filtro.strftime('%d/%m/%Y')}")
+    # --- CONFIGURAÇÕES E BANCO DE DADOS ---
+    STATUS_OPCOES = ["Reunião", "A Iniciar", "Em Andamento", "Projetos Futuros", "Concluído"]
+    CORES_MAP = {
+        "Reunião": "#444444", 
+        "A Iniciar": "#FF8C00", 
+        "Em Andamento": "#FF4500", 
+        "Projetos Futuros": "#FFA500", 
+        "Concluído": "#28B463"
+    }
+    DB_FILE = "dunas_fleet_complete.json"
 
-with tab2:
-    st.header("📊 Inteligência de Dados - Power BI")
-    escolha = st.selectbox("Selecione o Cliente:", list(LINKS_POWER_BI.keys()))
-    link_selecionado = LINKS_POWER_BI[escolha]
-    if link_selecionado:
-        st.markdown(f'<iframe width="100%" height="800" src="{link_selecionado}" frameborder="0" allowFullScreen="true"></iframe>', unsafe_allow_html=True)
+    def carregar_dados():
+        colunas = ["Projeto", "Data Inicial", "Prazo", "Status", "Foco", "Escopo", "Detalhamento", "Resultado Esperado"]
+        if os.path.exists(DB_FILE):
+            with open(DB_FILE, "r", encoding="utf-8") as f:
+                try:
+                    dados = json.load(f)
+                    if dados:
+                        df = pd.DataFrame(dados)
+                        df["Data Inicial"] = pd.to_datetime(df["Data Inicial"], errors='coerce').fillna(pd.Timestamp.now())
+                        df["Prazo"] = pd.to_datetime(df["Prazo"], errors='coerce').fillna(pd.Timestamp.now())
+                        return df[colunas]
+                except: pass
+        return pd.DataFrame(columns=colunas)
 
-with tab3:
-    st.write("### 📝 Manifesto")
-    df = pd.DataFrame(st.session_state.atividades)
-    if 'data' in df.columns: df['data'] = pd.to_datetime(df['data'])
-    df_edit = st.data_editor(df, column_config={"status": st.column_config.SelectboxColumn("Status", options=STATUS_OPCOES, required=True), "data": st.column_config.DateColumn("Data", required=True)}, use_container_width=True, num_rows="dynamic")
-    if st.button("🚀 ATUALIZAR MANIFESTO"):
-        new_data = df_edit.to_dict('records')
-        for item in new_data:
-            if isinstance(item.get('data'), (datetime, pd.Timestamp)):
-                item['data'] = item['data'].strftime("%Y-%m-%d")
-        st.session_state.atividades = [item for item in new_data if item.get('atv') is not None]
-        salvar_dados(st.session_state.atividades)
-        st.rerun()
+    if 'df_projetos' not in st.session_state:
+        st.session_state.df_projetos = carregar_dados()
 
-with tab4:
-    st.write("### 🧮 Logística de Carga")
-    total_dia = len(atividades_filtradas)
-    tempo_min = st.number_input("Tempo por Operação (Min)", min_value=1, value=20)
-    st.metric(f"Total para {data_filtro.strftime('%d/%m')}", f"{total_dia} Atividades")
-    st.metric("Estimativa de Tempo", f"{(total_dia * tempo_min / 60):.1f} Horas")
+    # --- FILTROS GLOBAIS (SIDEBAR) ---
+    with st.sidebar:
+        st.header("👔 Dunas Fleet")
+        st.markdown("---")
+        st.subheader("🔍 Filtros Globais")
+        f_nome = st.text_input("Buscar Projeto")
+        f_data = st.date_input("Data Inicial", value=None)
+        
+        df_exibicao = st.session_state.df_projetos.copy()
+        if f_nome:
+            df_exibicao = df_exibicao[df_exibicao['Projeto'].str.contains(f_nome, case=False, na=False)]
+        if f_data:
+            df_exibicao = df_exibicao[df_exibicao['Data Inicial'].dt.date == f_data]
 
-with tab5:
-    st.header("✍️ Bloco de Notas - Insights e Ideias")
-    notas_atuais = carregar_notas()
-    # Área para digitar as ideias
-    ideias = st.text_area("Digite aqui suas anotações estratégicas...", value=notas_atuais, height=600, placeholder="Escreva o que quiser, ideias de automação, lembretes de reuniões...")
-    if st.button("💾 SALVAR ANOTAÇÕES"):
-        salvar_notas(ideias)
-        st.success("Anotações salvas com sucesso!")
+        st.markdown("---")
+        st.subheader("💾 Persistência")
+        if st.button("SALVAR TUDO (JSON)"):
+            df_save = st.session_state.df_projetos.copy()
+            df_save["Data Inicial"] = df_save["Data Inicial"].dt.strftime('%Y-%m-%d')
+            df_save["Prazo"] = df_save["Prazo"].dt.strftime('%Y-%m-%d')
+            df_save.to_json(DB_FILE, orient="records", force_ascii=False, indent=4)
+            st.success("Dados salvos fisicamente!")
+
+    # --- ESTILO DUNAS FLEET ---
+    st.markdown("""
+        <style>
+        .stApp { background-color: #FFFFFF; }
+        [data-testid="stSidebar"] { background-color: #FF8C00 !important; border-right: 5px solid #444444; }
+        [data-testid="stSidebar"] * { color: white !important; }
+        .stTabs [aria-selected="true"] { background-color: #FF8C00 !important; color: white !important; font-weight: bold; }
+        @media (max-width: 768px) {
+            [data-testid="stMetric"] { width: 100% !important; margin-bottom: 10px; }
+            .stColumnsBlock { flex-direction: column !important; }
+            div[data-testid="column"] { width: 100% !important; }
+            .stTabs [role="tablist"] { display: flex; flex-wrap: wrap; }
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # --- NAVEGAÇÃO POR ABAS ---
+    tab0, tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "📊 PAINEL DUNAS", "🗺️ AMBIENTE VIRTUAL", "📋 FLUXO (TRELLO)", "📝 MANIFESTO (BANCO)", "✍️ NOTAS", "📊 RESUMO IA"
+    ])
+
+    # ABA 0: PAINEL DUNAS (POWER BI)
+    with tab0:
+        st.subheader("📊 Central de Dashboards Power BI")
+        cliente = st.selectbox("Selecione o Cliente para Visualização:", ["Autotruck Transportes", "Mlog Transportes"])
+        
+        links = {
+            "Autotruck Transportes": "https://app.powerbi.com/view?r=eyJrIjoiMjhjMWFlZDUtY2E0Zi00NjlmLWE0NGItM2EwMWM2YWFlZDBlIiwidCI6IjZhNmZhNjk4LWZhZTYtNDJkOC05YjRkLWRiZGY4ZDc3MmI4MCJ9",
+            "Mlog Transportes": "https://app.powerbi.com/view?r=eyJrIjoiNzAzNzNlY2EtZjU1YS00ZjRkLWJmMzQtOGNmYjYzYmQyZmFkIiwidCI6IjZhNmZhNjk4LWZhZTYtNDJkOC05YjRkLWRiZGY4ZDc3MmI4MCJ9"
+        }
+        
+        components.iframe(links[cliente], height=800)
+
+    with tab1:
+        st.subheader("🗺️ Mapa Estratégico")
+        def gerar_mapa_html(df):
+            atividades = df.to_dict('records')
+            salas = {
+                "Reunião": {"t": "1%", "l": "1%", "w": "98%", "h": "20%", "n": "🤝 REUNIÃO ESTRATÉGICA"},
+                "A Iniciar": {"t": "23%", "l": "1%", "w": "32%", "h": "75%", "n": "🚀 BACKLOG"},
+                "Em Andamento": {"t": "23%", "l": "34%", "w": "32%", "h": "45%", "n": "⚙️ EM EXECUÇÃO"},
+                "Projetos Futuros": {"t": "70%", "l": "34%", "w": "32%", "h": "28%", "n": "📅 PIPELINE"},
+                "Concluído": {"t": "23%", "l": "67%", "w": "32%", "h": "75%", "n": "✅ FINALIZADOS"}
+            }
+            html_final = ""
+            for status, pos in salas.items():
+                cards_html = ""
+                status_cards = [x for x in atividades if x.get('Status') == status]
+                for idx, a in enumerate(status_cards):
+                    cor = CORES_MAP.get(status, "#ccc")
+                    cards_html += f'''
+                    <div style="background:#fff; border-left:6px solid {cor}; margin-bottom:12px; border-radius:8px; padding:12px; box-shadow:0 4px 6px rgba(0,0,0,0.1); border:1px solid #eee; font-family: sans-serif;">
+                        <div style="display:flex; align-items:center; margin-bottom:8px;">
+                            <span style="background:#FF8C00; color:white; font-size:8px; padding:2px 6px; border-radius:4px; font-weight:bold;">DUNAS</span>
+                            <div style="flex-grow:1; height:10px; position:relative; margin-left:10px; background:#f0f0f0; border-radius:10px; overflow:hidden;"><div class="walker" style="animation-delay:{idx*0.5}s;"></div></div>
+                        </div>
+                        <div style="font-size:13px; font-weight:900; color:#444; margin-bottom:4px;">{str(a.get("Projeto","")).upper()}</div>
+                        <div style="font-size:10px; color:#FF4500; font-weight:bold; margin-bottom:8px;">📅 {pd.to_datetime(a.get("Data Inicial")).strftime('%d/%m/%Y')}</div>
+                        <div style="font-size:10px; color:#555; line-height:1.4;">
+                            <b>🎯 Foco:</b> {a.get('Foco')}<br>
+                            <b>📑 Escopo:</b> {a.get('Escopo')}<br>
+                            <b>🔍 Detalhes:</b> {a.get('Detalhamento')}<br>
+                            <b>✅ Result:</b> {a.get('Resultado Esperado')}
+                        </div>
+                    </div>'''
+                html_final += f'''<div style="position:absolute; top:{pos["t"]}; left:{pos["l"]}; width:{pos["w"]}; height:{pos["h"]}; background:rgba(255,245,230,0.6); border-radius:12px; border:1px solid #ddd; display:flex; flex-direction:column;">
+                    <div style="font-size:11px; font-weight:bold; color:#444; padding:10px; border-bottom:1px solid #ddd; background:rgba(255,255,255,0.4); border-radius:12px 12px 0 0;">{pos["n"]}</div>
+                    <div style="overflow-y:auto; flex-grow:1; padding:10px;">{cards_html}</div></div>'''
+            return f"""<style>.walker {{ width:10px; height:10px; background: #FF4500; border-radius:50%; position:absolute; top:0; animation: move 5s infinite ease-in-out alternate; }} @keyframes move {{ from {{ left:0%; }} to {{ left:calc(100% - 10px); }} }}</style>
+            <div style="background:#FFFFFF; width:100%; height:82vh; position:relative; border-radius:15px; border:2px solid #eee; overflow:hidden;">{html_final}</div>"""
+        components.html(gerar_mapa_html(df_exibicao), height=850)
+
+    with tab2:
+        st.subheader("📋 Visualização Estilo Trello")
+        cols = st.columns(len(STATUS_OPCOES))
+        for i, status in enumerate(STATUS_OPCOES):
+            with cols[i]:
+                st.markdown(f'<div style="background:{CORES_MAP[status]}; color:white; padding:10px; border-radius:5px; text-align:center; font-weight:bold; margin-bottom:15px;">{status.upper()}</div>', unsafe_allow_html=True)
+                for a in df_exibicao[df_exibicao['Status'] == status].to_dict('records'):
+                    st.markdown(f"""<div style="background:#FFFFFF; border:1px solid #ddd; border-left:5px solid {CORES_MAP[status]}; padding:15px; border-radius:10px; margin-bottom:15px; font-size:12px; box-shadow: 2px 2px 5px rgba(0,0,0,0.05);">
+                        <div style="font-size:14px; font-weight:bold; color:#444; margin-bottom:5px;">{a.get('Projeto')}</div>
+                        <div style="color:#FF4500; margin-bottom:10px; font-weight:bold;">📅 {pd.to_datetime(a.get('Data Inicial')).strftime('%d/%m/%Y')}</div>
+                        <div style="margin-bottom:3px;"><b>🎯 Foco:</b> {a.get('Foco')}</div>
+                        <div style="margin-bottom:3px;"><b>📑 Escopo:</b> {a.get('Escopo')}</div>
+                        <div style="margin-bottom:3px;"><b>🔍 Detalhes:</b> {a.get('Detalhamento')}</div>
+                        <div style="margin-bottom:3px;"><b>✅ Resultado:</b> {a.get('Resultado Esperado')}</div>
+                        </div>""", unsafe_allow_html=True)
+
+    with tab3:
+        st.subheader("📝 Manifesto de Dados")
+        df_editado = st.data_editor(st.session_state.df_projetos, use_container_width=True, num_rows="dynamic", height=500,
+            column_config={
+                "Status": st.column_config.SelectboxColumn("Status", options=STATUS_OPCOES, required=True),
+                "Data Inicial": st.column_config.DateColumn("Data Inicial", format="DD/MM/YYYY"),
+                "Prazo": st.column_config.DateColumn("Prazo", format="DD/MM/YYYY")
+            })
+        if st.button("🚀 ATUALIZAR ALTERAÇÕES"):
+            st.session_state.df_projetos = df_editado
+            st.rerun()
+
+    with tab4:
+        st.text_area("✍️ Notas Estratégicas", height=600)
+
+    with tab5:
+        st.header("📊 Inteligência da Operação")
+        df = df_exibicao
+        if not df.empty:
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("Projetos Exibidos", len(df))
+            c2.metric("Em Execução", len(df[df['Status']=='Em Andamento']))
+            c3.metric("Taxa Conclusão", f"{(len(df[df['Status']=='Concluído'])/len(df)*100 if len(df)>0 else 0):.1f}%")
+            c4.metric("Backlog", len(df[df['Status']=='A Iniciar']))
+            st.markdown("---")
+            col_L, col_R = st.columns([1, 1])
+            with col_L:
+                st.subheader("📈 Carga por Status")
+                st.bar_chart(df['Status'].value_counts().reindex(STATUS_OPCOES, fill_value=0))
+                st.subheader("🚨 Próximos Prazos")
+                st.table(df[df['Status'] != 'Concluído'].sort_values('Prazo')[['Projeto', 'Prazo', 'Status']].head(5))
+            with col_R:
+                st.subheader("💡 Insights")
+                if len(df[df['Status'] == 'Em Andamento']) > 3: st.warning("Sobrecarga detectada.")
+                else: st.success("Fluxo saudável.")
+                st.info(f"**Status Predominante:** {df['Status'].mode()[0] if not df['Status'].mode().empty else 'N/A'}")
+        else:
+            st.warning("Nenhum dado encontrado para os filtros aplicados.")
+else:
+    st.warning("Aguardando autenticação...")
+    st.stop()
