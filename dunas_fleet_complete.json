@@ -1,68 +1,112 @@
 [
     {
-        "atv": "Operação Dunas",
-        "exec": "Gabriel",
-        "status": "Reunião",
-        "data": "2026-04-18"
+        "Projeto":"Michael ",
+        "Data Inicial":"2026-04-19",
+        "Prazo":"2026-04-19",
+        "Status":"A Iniciar",
+        "Foco":"Michael ",
+        "Escopo":"Michael ",
+        "Detalhamento":"Michael ",
+        "Resultado Esperado":"Michael "
     },
     {
-        "atv": "Operação Dunas",
-        "exec": "Gabriel",
-        "status": "A Iniciar",
-        "data": "2026-04-18"
+        "Projeto":"Bezerra",
+        "Data Inicial":"2026-04-19",
+        "Prazo":"2026-04-19",
+        "Status":"Projetos Futuros",
+        "Foco":"Michael ",
+        "Escopo":"Michael ",
+        "Detalhamento":"Michael ",
+        "Resultado Esperado":"Michael "
     },
     {
-        "atv": "Operação Dunas",
-        "exec": "Gabriel",
-        "status": "A Iniciar",
-        "data": "2026-04-18"
+        "Projeto":"Projeto Dunas ",
+        "Data Inicial":"2026-04-19",
+        "Prazo":"2026-04-19",
+        "Status":"Em Andamento",
+        "Foco":"Michael ",
+        "Escopo":"Michael ",
+        "Detalhamento":"Michael ",
+        "Resultado Esperado":"Michael "
     },
     {
-        "atv": "Operação Dunas",
-        "exec": "Gabriel",
-        "status": "A Iniciar",
-        "data": "2026-04-18"
+        "Projeto":"ok",
+        "Data Inicial":"2026-04-19",
+        "Prazo":"2026-04-19",
+        "Status":"A Iniciar",
+        "Foco":"Michael ",
+        "Escopo":"Michael ",
+        "Detalhamento":"Michael ",
+        "Resultado Esperado":"Michael "
     },
     {
-        "atv": "Operação Dunas",
-        "exec": "Gabriel",
-        "status": "Projetos Futuros",
-        "data": "2026-04-18"
+        "Projeto":"ok",
+        "Data Inicial":"2026-04-19",
+        "Prazo":"2026-04-19",
+        "Status":"A Iniciar",
+        "Foco":"Michael ",
+        "Escopo":"Michael ",
+        "Detalhamento":"Michael ",
+        "Resultado Esperado":"Michael "
     },
     {
-        "atv": "Operação Dunas",
-        "exec": "Gabriel",
-        "status": "Projetos Futuros",
-        "data": "2026-04-18"
+        "Projeto":"asd",
+        "Data Inicial":"2026-04-19",
+        "Prazo":"2026-04-19",
+        "Status":"Em Andamento",
+        "Foco":"Michael ",
+        "Escopo":"Michael ",
+        "Detalhamento":"Michael ",
+        "Resultado Esperado":"Michael "
     },
     {
-        "atv": "Operação Dunas",
-        "exec": "Gabriel",
-        "status": "Projetos Futuros",
-        "data": "2026-04-18"
+        "Projeto":"sdasd",
+        "Data Inicial":"2026-04-19",
+        "Prazo":"2026-04-19",
+        "Status":"Projetos Futuros",
+        "Foco":"Michael ",
+        "Escopo":"Michael ",
+        "Detalhamento":"Michael ",
+        "Resultado Esperado":"Michael "
     },
     {
-        "atv": "Operação Dunas",
-        "exec": "Gabriel",
-        "status": "Reunião",
-        "data": "2026-04-18"
+        "Projeto":"sada",
+        "Data Inicial":"2026-04-19",
+        "Prazo":"2026-04-19",
+        "Status":"Reunião",
+        "Foco":"Michael ",
+        "Escopo":"Michael ",
+        "Detalhamento":"Michael ",
+        "Resultado Esperado":"Michael "
     },
     {
-        "atv": "Operação Dunas",
-        "exec": "Gabriel",
-        "status": "Reunião",
-        "data": "2026-04-18"
+        "Projeto":"sasd",
+        "Data Inicial":"2026-04-19",
+        "Prazo":"2026-04-19",
+        "Status":"Em Andamento",
+        "Foco":"Michael ",
+        "Escopo":"Michael ",
+        "Detalhamento":"Michael ",
+        "Resultado Esperado":"Michael "
     },
     {
-        "atv": "Operação Dunas",
-        "exec": "Gabriel",
-        "status": "Reunião",
-        "data": "2026-04-18"
+        "Projeto":"asda",
+        "Data Inicial":"2026-04-19",
+        "Prazo":"2026-04-19",
+        "Status":"A Iniciar",
+        "Foco":"Michael ",
+        "Escopo":"Michael ",
+        "Detalhamento":"Michael ",
+        "Resultado Esperado":"Michael "
     },
     {
-        "atv": "Operação Dunas",
-        "exec": "Gabriel",
-        "status": "Reunião",
-        "data": "2026-04-13"
+        "Projeto":"asd",
+        "Data Inicial":"2026-04-19",
+        "Prazo":"2026-04-19",
+        "Status":"Em Andamento",
+        "Foco":"Michael ",
+        "Escopo":"Michael ",
+        "Detalhamento":"Michael ",
+        "Resultado Esperado":"Michael "
     }
 ]
